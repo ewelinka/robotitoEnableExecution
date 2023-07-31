@@ -17,9 +17,9 @@ void setup() {
   size(800, 800);
   ellipseMode(CENTER);
   smooth();
-  
+
   play = loadImage("play.png");
-  
+
   robotito = new Robotito(width/2, height/2);
   back = createGraphics(width, height);
   back.beginDraw();
@@ -51,8 +51,9 @@ void draw() {
   drawMat();
   displayCards();
   if (!stopRobot) {
-    robotito.update();
+    robotito.updatePosition();
   }
+  robotito.updateSensing();
   robotito.drawRobotitoAndLights();
   checkIfNewCardNeeded();
 }
@@ -103,12 +104,12 @@ void keyPressed() {
       cardColor = green; // verde
     } else if (key == 'y' || key == 'Y') {
       cardColor = yellow; // amarillo
-    } 
+    }
   }
 }
 
 void addCard(int x, int y) {
-    allCards.add(new ColorCard(x, y, cardSize, cardColor));
+  allCards.add(new ColorCard(x, y, cardSize, cardColor));
 }
 
 void drawMat() {

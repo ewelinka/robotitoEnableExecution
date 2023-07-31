@@ -2,6 +2,7 @@ class Robotito { //<>//
   int ypos, xpos, speed, size, directionX, directionY, ledSize, activeDirection;
   color colorRobotito, lastColor;
   float ledDistance;
+  boolean lightsOn;
   Robotito (int x, int y) {
     xpos = x;
     ypos = y;
@@ -12,25 +13,38 @@ class Robotito { //<>//
     directionX = directionY = activeDirection = 0;
     colorRobotito = #FCB603;
     lastColor = white;
+    lightsOn = false;
   }
-  void update() {
+  void updatePosition() {
     xpos += speed*directionX;
     ypos += speed*directionY;
+  }
+  void updateSensing() {
     if ((ypos > height) || (ypos < 0)) {
       directionY = 0;
     }
     if ((xpos > width) || (xpos < 0)) {
       directionX = 0;
     }
-    // calculate offset necesary to change direction in the middle of the card depending direction
-    int offsetX = directionX*offsetSensing*-1;
-    int offsetY = directionY*offsetSensing*-1;
+    // calculate offset necesary to change direction in the middle of the card depending direction, if robot is not moving the offset is equal to 0 (sensing in the center of the robot)
+    int offsetX = 0;
+    int offsetY = 0;
+    if (!stopRobot) {
+      offsetX = directionX*offsetSensing*-1;
+      offsetY = directionY*offsetSensing*-1;
+    }
+    boolean noCardDetected = true;
     for (Card currentCard : allCards) {
       if (currentCard.isPointInside(xpos+offsetX, ypos+offsetY)) {
+        noCardDetected = false;
         if (currentCard.id != ignoredId) {
           processColorAndId(back.get(xpos+offsetX, ypos+offsetY), currentCard.id);
         }
       }
+    }
+    if (noCardDetected) {
+      activeDirection = 0;
+      ignoredId = -1;
     }
   }
   void drawRobotitoAndLights() {
@@ -92,19 +106,24 @@ class Robotito { //<>//
     popMatrix();
   }
   void drawDirectionLights() {
-    switch(activeDirection) {
-    case 1: // green
-      drawArc(0, green);
-      break;
-    case 2: // yellow
-      drawArc(90, yellow);
-      break;
-    case 3: // red
-      drawArc(180, red);
-      break;
-    case 4: // blue
-      drawArc(270, blue);
-      break;
+    if ((!stopRobot) || lightsOn) {
+      switch(activeDirection) {
+      case 1: // green
+        drawArc(0, green);
+        break;
+      case 2: // yellow
+        drawArc(90, yellow);
+        break;
+      case 3: // red
+        drawArc(180, red);
+        break;
+      case 4: // blue
+        drawArc(270, blue);
+        break;
+      }
+    }
+    if ((stopRobot) &&(frameCount%60 == 0)) {
+      lightsOn = !lightsOn;
     }
   }
 
@@ -166,5 +185,9 @@ class Robotito { //<>//
 
   boolean isPointInside(int x, int y) {
     return x >= xpos-size/2 && x <= xpos+size/2 && y >= ypos-size/2 && y <= ypos+size/2;
+  }
+
+  void setLightsOn(boolean isOn) {
+    lightsOn = isOn;
   }
 }
