@@ -34,19 +34,14 @@ class Robotito { //<>//
       offsetX = directionX*offsetSensing*-1;
       offsetY = directionY*offsetSensing*-1;
     }
-    boolean awayFromCards = true;
     for (Card currentCard : allCards) {
       if (currentCard.isPointInside(xpos+offsetX, ypos+offsetY)) {
-        awayFromCards = false;
         if (currentCard.id != ignoredId) {
           processColorAndId(back.get(xpos+offsetX, ypos+offsetY), currentCard.id);
         }
       }
     }
-    if (awayFromCards) {
-      activeDirection = 0;
-      ignoredId = -1;
-    }
+
   }
   void drawRobotitoAndLights() {
     drawRobotito();
